@@ -9,16 +9,7 @@ use anchor_spl::{
 #[derive(Accounts)]
 pub struct BuyInSol<'info> {
   pub token_mint: Box<InterfaceAccount<'info, Mint>>,
-
-  #[account(
-    seeds = [
-      CONFIG_SEED,
-    ],
-    bump = config.bump
-  )]
-  pub config: Box<Account<'info, Config>>,
-
-    /// CHECK
+  /// CHECK
   #[account(
     mut,
     seeds = [
@@ -27,7 +18,7 @@ pub struct BuyInSol<'info> {
     ],
     bump = bonding_curve.bump,
   )]
-  pub bonding_curve: Account<'info, BondingCurve>,
+  pub bonding_curve: Box<Account<'info, BondingCurve>>,
 
   #[account(
     mut,
@@ -45,20 +36,6 @@ pub struct BuyInSol<'info> {
     payer = user,
   )]
   pub associted_user_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
-  /// CHECK
-  #[account(
-    mut,
-    address = bonding_curve.creator
-  )]
-  pub creator: UncheckedAccount<'info>,
-
-  /// CHECK
-  #[account(
-    mut,
-    address = config.fee_recipient
-  )]
-  pub fee_account: UncheckedAccount<'info>,
-
 
   #[account(mut)]
     pub user: Signer<'info>,
@@ -79,7 +56,6 @@ impl BuyInSol<'_> {
     let current_supply =
       T - ctx.accounts.associted_bonding_curve.amount;
 
-    // let fee_sol = sol * (ctx.accounts.config.buy_fee as u64)/10000;
 
     let token_amount_to_purchased = calculate_token_amount(current_supply/1000000000, sol) * 1000000000;
     require!(token_amount_to_purchased >= amount_min, PumpFunError::SlippageExceed);

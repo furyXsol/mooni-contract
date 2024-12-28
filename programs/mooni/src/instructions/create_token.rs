@@ -1,7 +1,6 @@
 use crate::*;
 use anchor_spl::{
   associated_token::AssociatedToken,
-  associated_token::{create, Create },
   metadata::{
       create_metadata_accounts_v3,
       mpl_token_metadata::{accounts::Metadata as MetadataAccount, types::DataV2},
@@ -49,23 +48,8 @@ pub struct CreateToken<'info> {
   pub associted_bonding_curve: Box<InterfaceAccount<'info, TokenAccount>>,
 
   /// CHECK
-  #[account(
-    mut,
-    address = config.fee_recipient
-  )]
-  pub fee_recipient: UncheckedAccount<'info>,
-
-  /// CHECK
   #[account(mut)]
   pub associted_fee_token_account: UncheckedAccount<'info>,
-
-  #[account(
-    seeds = [
-      CONFIG_SEED,
-    ],
-    bump = config.bump
-  )]
-  pub config: Box<Account<'info, Config>>,
 
   /// CHECK
   #[account(
@@ -90,23 +74,13 @@ impl CreateToken<'_> {
     ctx.accounts.bonding_curve.creator = ctx.accounts.payer.key();
     ctx.accounts.bonding_curve.bump = ctx.bumps.bonding_curve;
 
-    //create token_account for fee_receipt
-    let cpi_context = CpiContext::new(
-      ctx.accounts.associated_token_program.to_account_info(),
-      Create {
-        associated_token: ctx.accounts.associted_fee_token_account.to_account_info(),
-        payer: ctx.accounts.payer.to_account_info(),
-        mint: ctx.accounts.token_mint.to_account_info(),
-        authority: ctx.accounts.fee_recipient.to_account_info(),
-        token_program: ctx.accounts.token_program.to_account_info(),
-        system_program: ctx.accounts.system_program.to_account_info()
-      }
-    );
-    create(cpi_context)?;
-
     //create token_account for liquidity
 
-    let seeds = &[BONDING_CURVE_SEED, &ctx.accounts.token_mint.key().to_bytes(), &[ctx.bumps.bonding_curve]];
+    let seeds = &[
+      BONDING_CURVE_SEED,
+      &ctx.accounts.token_mint.key().to_bytes(),
+      &[ctx.bumps.bonding_curve]
+    ];
     let signer_seeds = [&seeds[..]];
 
     // create metadata account
@@ -134,9 +108,14 @@ impl CreateToken<'_> {
       uses: None,
     };
 
-    create_metadata_accounts_v3(cpi_context, data_v2, false, true, None)?;
+    create_metadata_accounts_v3(
+      cpi_context,
+      data_v2,
+      false,
+      true,
+      None
+    )?;
 
-    // let mint_fee = ctx.accounts.config.mint_fee; //1 means 0.01%
     // mint_to  MAX_SUPPLY to bonding curve
     let cpi_accounts = MintTo {
       mint: ctx.accounts.token_mint.to_account_info(),

@@ -11,14 +11,6 @@ pub struct Buy<'info> {
 
   pub token_mint: Box<InterfaceAccount<'info, Mint>>,
 
-  #[account(
-    seeds = [
-      CONFIG_SEED,
-    ],
-    bump = config.bump
-  )]
-  pub config: Box<Account<'info, Config>>,
-
   /// CHECK
   #[account(
     mut,
@@ -29,13 +21,6 @@ pub struct Buy<'info> {
     bump = bonding_curve.bump
   )]
   pub bonding_curve: Account<'info, BondingCurve>,
-
-  /// CHECK
-  #[account(
-    mut,
-    address = bonding_curve.creator
-  )]
-  pub creator: UncheckedAccount<'info>,
 
   #[account(
     mut,
@@ -52,20 +37,6 @@ pub struct Buy<'info> {
     token::token_program = token_program,
   )]
   pub associted_user_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
-
-  /// CHECK
-  #[account(
-    mut,
-    address = config.fee_recipient
-  )]
-  pub fee_account: UncheckedAccount<'info>,
-
-  /// CHECK
-  // #[account(
-  //   mut,
-  //   address = config.liquidity
-  // )]
-  // pub liquidity: UncheckedAccount<'info>,
 
   #[account(mut)]
     pub user: Signer<'info>,
@@ -101,23 +72,7 @@ impl Buy<'_> {
         ctx.accounts.user.to_account_info(),
         ctx.accounts.bonding_curve.to_account_info(),
         required_lamports
-        // required_lamports * (97 as u64) / 100,
     )?;
-    // //transfer sol to fee account
-    // let buy_fee = required_lamports * (2 as u64) / 100;
-    // transfer_sol(
-    //   ctx.accounts.user.to_account_info(),
-    //   ctx.accounts.fee_account.to_account_info(),
-    //   buy_fee,
-    // )?;
-
-    //transfer sol to craetor account
-    // let buy_fee = required_lamports / 100;
-    // transfer_sol(
-    //   ctx.accounts.user.to_account_info(),
-    //   ctx.accounts.fee_account.to_account_info(),
-    //   buy_fee,
-    // )?;
 
     //transfer token from vault to user
     let token_mint = ctx.accounts.token_mint.key();
