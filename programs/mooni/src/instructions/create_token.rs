@@ -48,10 +48,6 @@ pub struct CreateToken<'info> {
   pub associted_bonding_curve: Box<InterfaceAccount<'info, TokenAccount>>,
 
   /// CHECK
-  #[account(mut)]
-  pub associted_fee_token_account: UncheckedAccount<'info>,
-
-  /// CHECK
   #[account(
     mut,
     address = MetadataAccount::find_pda(&token_mint.key()).0
