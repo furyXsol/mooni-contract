@@ -47,10 +47,12 @@ pub struct Withdraw<'info> {
   )]
     pub associted_bonding_curve: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    #[account(
+  #[account(
+    init_if_needed,
     associated_token::mint = token_mint,
     associated_token::authority = authority,
     token::token_program = token_program,
+    payer = authority
   )]
     pub associted_user_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 

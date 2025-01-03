@@ -7,7 +7,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-mooni = "6h7RoxZNMCnQwVvjBfba1BbV5zzj28mtPAY6PXTJa6Zv"
+mooni = "j2UToo6dSUD6yXHLz8aT7Wsx8GrQng7AjN6ey6P6ntd"
 
 [registry]
 url = "https://api.apr.dev"

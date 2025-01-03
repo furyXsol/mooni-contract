@@ -13,7 +13,7 @@ use utils::*;
 use events::*;
 use errors::*;
 
-declare_id!("6h7RoxZNMCnQwVvjBfba1BbV5zzj28mtPAY6PXTJa6Zv");
+declare_id!("j2UToo6dSUD6yXHLz8aT7Wsx8GrQng7AjN6ey6P6ntd");
 
 //decimal: 9
 

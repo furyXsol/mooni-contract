@@ -34,7 +34,7 @@ impl CreateConfig<'_> {
 #[derive(Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct CreateConfigParams {
   pub admin: Pubkey,
-  pub fee_recipient: Pubkey,
+  // pub fee_recipient: Pubkey,
   // pub liquidity: Pubkey,
   // pub buy_fee: u32,
   // pub mint_fee: u32,
