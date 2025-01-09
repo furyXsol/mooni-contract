@@ -18,7 +18,7 @@ pub struct CreateToken<'info> {
   #[account(
     init,
     payer = payer,
-    mint::decimals = 9,
+    mint::decimals = 0,
     mint::authority = bonding_curve,
     mint::token_program = token_program,
   )]

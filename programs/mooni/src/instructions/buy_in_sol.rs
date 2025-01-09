@@ -37,6 +37,13 @@ pub struct BuyInSol<'info> {
   )]
   pub associted_user_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
+  /// CHECK
+  #[account(
+    mut,
+    address = crate::fee::id()
+  )]
+  pub fee_account: UncheckedAccount<'info>,
+
   #[account(mut)]
     pub user: Signer<'info>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -47,17 +54,18 @@ pub struct BuyInSol<'info> {
 impl BuyInSol<'_> {
   pub fn apply(ctx: &mut Context<BuyInSol>, amount_min: u64, sol: u64) -> Result<()> {
     let decimals = ctx.accounts.token_mint.decimals;
-
+    require!(decimals == 0, PumpFunError::InvalidToken);
     // check to ensure funding goal is not met
-    // require!(
-    //     (ctx.accounts.associted_bonding_curve.amount as u128)> INIT_SUPPLY,
-    //     PumpFunError::AlreadyRaised
-    // );
+    require!(
+        ctx.accounts.associted_bonding_curve.amount > LIQUIDITY,
+        PumpFunError::AlreadyRaised
+    );
     let current_supply =
       T - ctx.accounts.associted_bonding_curve.amount;
 
+    let fee_sol = sol /100;
 
-    let token_amount_to_purchased = calculate_token_amount(current_supply/1000000000, sol) * 1000000000;
+    let token_amount_to_purchased = calculate_token_amount(current_supply, sol - fee_sol);
     require!(token_amount_to_purchased >= amount_min, PumpFunError::SlippageExceed);
 
     let available_qty = ctx.accounts.associted_bonding_curve.amount as u128;
@@ -90,10 +98,17 @@ impl BuyInSol<'_> {
         decimals,
         vault_signer_seeds,
     )?;
+    //transfer fee
+    transfer_sol(
+      ctx.accounts.user.to_account_info(),
+      ctx.accounts.fee_account.to_account_info(),
+      fee_sol
+    )?;
+
     emit!(BuyEvent {
         mint: ctx.accounts.token_mint.key(),
         token_output: token_amount_to_purchased,
-        sol_input: sol,
+        sol_input: sol - fee_sol,
         buyer: ctx.accounts.user.key()
     });
     Ok(())

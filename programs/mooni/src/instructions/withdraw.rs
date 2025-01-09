@@ -10,17 +10,9 @@ pub struct Withdraw<'info> {
     /// Admin address
   #[account(
       mut,
-      address = config.admin
+      address = crate::admin::id()
   )]
   pub authority: Signer<'info>,
-
-  #[account(
-    seeds = [
-      CONFIG_SEED,
-    ],
-    bump = config.bump
-  )]
-  pub config: Box<Account<'info, Config>>,
 
   #[account(
     mut,
