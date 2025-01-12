@@ -1,7 +1,9 @@
 use anchor_lang::prelude::error_code;
 
 #[error_code]
-pub enum PumpFunError {
+pub enum MooniError {
+  #[msg("AlreadyInitialized")]
+  AlreadyInitialized,
   #[msg("Invalid Token")]
   InvalidToken,
   #[msg("Funding Already Raised")]

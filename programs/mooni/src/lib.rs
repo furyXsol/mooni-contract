@@ -15,20 +15,18 @@ declare_id!("HUnqKTdaeyLsKUzEdEaXNjdGQEh8TWXsvRhb4MZ8KoMq");
 
 pub const T:u64 = 1_000_000_000; //1000M  (Total supply)
 pub const LIQUIDITY:u64 = 360_000_000; // 360M  (For liquidity)
-pub mod admin {
-    use anchor_lang::declare_id;
-
-    declare_id!("Deuj4zBPtc6gMwVviDG8yUZbXgL4fEWduVaVxNM2FdRL");
-}
-pub mod fee {
-    use anchor_lang::declare_id;
-
-    declare_id!("Deuj4zBPtc6gMwVviDG8yUZbXgL4fEWduVaVxNM2FdRL");
-}
 
 #[program]
 pub mod mooni {
     use super::*;
+
+    pub fn create_config(mut ctx: Context<CreateConfig>, params: CreateConfigParams) -> Result<()> {
+        CreateConfig::apply(&mut ctx, &params)
+    }
+
+    pub fn update_config(mut ctx: Context<UpdateConfig>, params: UpdateConfigParams) -> Result<()> {
+        UpdateConfig::apply(&mut ctx, &params)
+    }
 
     // create meme token
     pub fn create_token(

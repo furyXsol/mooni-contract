@@ -37,10 +37,21 @@ pub struct BuyInSol<'info> {
   )]
   pub associted_user_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
+
   /// CHECK
   #[account(
     mut,
-    address = crate::fee::id()
+    seeds=[
+      CONFIG_SEED
+    ],
+    bump = config.bump
+  )]
+  pub config: Box<Account<'info, Config>>,
+
+  /// CHECK
+  #[account(
+    mut,
+    address = config.fee_recipient
   )]
   pub fee_account: UncheckedAccount<'info>,
 
@@ -54,11 +65,11 @@ pub struct BuyInSol<'info> {
 impl BuyInSol<'_> {
   pub fn apply(ctx: &mut Context<BuyInSol>, amount_min: u64, sol: u64) -> Result<()> {
     let decimals = ctx.accounts.token_mint.decimals;
-    require!(decimals == 0, PumpFunError::InvalidToken);
+    require!(decimals == 0, MooniError::InvalidToken);
     // check to ensure funding goal is not met
     require!(
         ctx.accounts.associted_bonding_curve.amount > LIQUIDITY,
-        PumpFunError::AlreadyRaised
+        MooniError::AlreadyRaised
     );
     let current_supply =
       T - ctx.accounts.associted_bonding_curve.amount;
@@ -66,11 +77,11 @@ impl BuyInSol<'_> {
     let fee_sol = sol /100;
 
     let token_amount_to_purchased = calculate_token_amount(current_supply, sol - fee_sol);
-    require!(token_amount_to_purchased >= amount_min, PumpFunError::SlippageExceed);
+    require!(token_amount_to_purchased >= amount_min, MooniError::SlippageExceed);
 
     let available_qty = ctx.accounts.associted_bonding_curve.amount as u128;
 
-    require!((token_amount_to_purchased as u128) <= available_qty, PumpFunError::NotEnoughSuppply);
+    require!((token_amount_to_purchased as u128) <= available_qty, MooniError::NotEnoughSuppply);
 
     //transfer sol to bonding_curve
     transfer_sol(

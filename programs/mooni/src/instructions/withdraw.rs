@@ -10,7 +10,7 @@ pub struct Withdraw<'info> {
     /// Admin address
   #[account(
       mut,
-      address = crate::admin::id()
+      address = config.admin
   )]
   pub authority: Signer<'info>,
 
@@ -20,7 +20,17 @@ pub struct Withdraw<'info> {
   )]
   pub token_mint: Box<InterfaceAccount<'info, Mint>>,
 
-    /// CHECK
+  /// CHECK
+  #[account(
+    mut,
+    seeds=[
+      CONFIG_SEED
+    ],
+    bump = config.bump
+  )]
+  pub config: Box<Account<'info, Config>>,
+
+  /// CHECK
   #[account(
       mut,
       seeds = [
